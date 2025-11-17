@@ -1,3 +1,5 @@
+# Code from SmilesTransformer (MIT License, Copyright (c) 2019 Shion Honda)
+
 import argparse
 import numpy as np
 import pandas as pd

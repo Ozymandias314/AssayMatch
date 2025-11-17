@@ -1,3 +1,5 @@
+# Code from SmilesTransformer (MIT License, Copyright (c) 2019 Shion Honda)
+
 import argparse
 import pandas as pd
 from tqdm import tqdm

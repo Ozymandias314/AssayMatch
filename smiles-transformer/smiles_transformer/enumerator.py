@@ -1,3 +1,5 @@
+# Code from SmilesTransformer (MIT License, Copyright (c) 2019 Shion Honda)
+
 #Experimental Class for Smiles Enumeration, Iterator and SmilesIterator adapted from Keras 1.2.2
 from rdkit import Chem
 import numpy as np

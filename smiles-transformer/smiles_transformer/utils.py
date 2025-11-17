@@ -1,3 +1,5 @@
+# Code from SmilesTransformer (MIT License, Copyright (c) 2019 Shion Honda)
+
 import torch
 import math
 import torch.nn as nn
