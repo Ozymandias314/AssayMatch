@@ -8,7 +8,7 @@ from rdkit.Chem.Descriptors import ExactMolWt
 from rdkit.Chem.Scaffolds.MurckoScaffold import GetScaffoldForMol
 import numpy as np
 
-db_path = '/data/rbg/users/vincentf/data_uncertainty/chembl_34/chembl_34/chembl_34_sqlite/chembl_34.db'
+db_path = '../data/chembl_34.db' #download from https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/releases/chembl_34/
 
 conn = sqlite3.connect(db_path, timeout = 10)
 cur = conn.cursor()
@@ -456,7 +456,7 @@ if __name__ == "__main__":
         df['value'].notna() &
         (df['value'] != 0) &
         (df['unit'] == 'uM')
-    ].copy()            # <‑‑ add copy()
+    ].copy()        
 
     clean_df = df_equality
     
@@ -466,8 +466,6 @@ if __name__ == "__main__":
     clean_df['scaffold_smiles'] = [Chem.MolToSmiles(GetScaffoldForMol(Chem.MolFromSmiles(smi))) for smi in clean_df['compound_smiles']]
     
     clean_df.to_csv(f'{args.output_dir}/{args.target_chembl_id}_ic50_equality_data.csv')
-
-    #mutants = set(df[df['assay_description'].str.contains('mutant', case=False, na=False)]['assay_id'])
 
     if args.no_mutants:
         mutants = set(clean_df[clean_df['assay_description'].str.contains('mutant', case=False, na=False)]['assay_id'])

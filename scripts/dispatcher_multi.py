@@ -24,9 +24,6 @@ def md5(key):
     return hashlib.md5(key.encode()).hexdigest()
 
 def parse_dispatcher_config(config):
-    # This function seems correct, no changes needed here.
-    # [Your existing parse_dispatcher_config function goes here]
-    # For brevity, I am omitting it, but you should copy it into the final script.
     assert all(
         [
             k
@@ -123,74 +120,9 @@ def gpu_memory_available(gpu_index):
         # If NVML fails, return a large number to effectively disable memory checking
         return float('inf')
 
-# def run_job(job_info):
-#     """
-#     This is our new worker function. It runs one job and returns the result.
-#     """
-#     flag_string, gpu_index, args = job_info
-#     script = args.script
-#     log_dir = args.log_dir
-#     dry_run = args.dry_run
-#     memory_threshold_bytes = args.memory_threshold * 1024 * 1024
-#     job_timeout = args.job_timeout  # New timeout argument
-
-#     job_hash = md5(flag_string)
-#     print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: Job received.")
-
-#     # --- Wait for GPU Memory ---
-#     while True:
-#         free_mem = gpu_memory_available(gpu_index)
-#         if free_mem >= memory_threshold_bytes:
-#             print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: Memory OK ({free_mem/1024**2:.0f}MB free). Launching.")
-#             break
-#         print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: Waiting for memory. Needs {args.memory_threshold}MB, has {free_mem/1024**2:.0f}MB.")
-#         time.sleep(10)
-
-#     # --- Launch Experiment ---
-#     log_stem = os.path.join(log_dir, job_hash)
-#     log_path = f"{log_stem}.txt"
-#     results_path = f"{log_stem}.args" # This should match what's in the shell command
-
-#     # Use log_stem for the experiment, as your comment noted
-#     experiment_string = (
-#         f"CUDA_VISIBLE_DEVICES={gpu_index} python -u scripts/{script}.py {flag_string} "
-#         f"--results_path {log_stem} --experiment_name {job_hash}"
-#     )
-
-#     pipe_str = ">>" if "--resume" in flag_string else ">"
-#     shell_cmd = f"{experiment_string} {pipe_str} {log_path} 2>&1"
-    
-#     if dry_run:
-#         print(f"DRY RUN CMD: {shell_cmd}")
-#         return results_path, log_path, "dry_run"
-
-#     if os.path.exists(results_path):
-#         print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: Result file already exists. Skipping.")
-#         return results_path, log_path, "skipped"
-
-#     try:
-#         print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: Starting subprocess.")
-#         # Use Popen for non-blocking call with timeout
-#         process = subprocess.Popen(shell_cmd, shell=True)
-#         process.wait(timeout=job_timeout)  # Wait for the process to complete with a timeout
-
-#         if process.returncode == 0:
-#             print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: Subprocess finished successfully.")
-#             return results_path, log_path, "success"
-#         else:
-#             print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: CRASH! Subprocess failed with return code {process.returncode}.")
-#             return results_path, log_path, "crashed"
-
-#     except subprocess.TimeoutExpired:
-#         print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: TIMEOUT! Job exceeded {job_timeout} seconds. Killing process.")
-#         process.kill()  # Forcefully kill the runaway process
-#         return results_path, log_path, "timeout"
-#     except Exception as e:
-#         print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: An unexpected error occurred: {e}")
-#         return results_path, log_path, "error"
 def run_job(job_info):
     """
-    This is our new worker function. It runs one job and returns the result.
+    Worker function. It runs one job and returns the result.
     """
     flag_string, gpu_index, args = job_info
     script = args.script
@@ -214,9 +146,8 @@ def run_job(job_info):
     # --- Launch Experiment ---
     log_stem = os.path.join(log_dir, job_hash)
     log_path = f"{log_stem}.txt"
-    results_path = f"{log_stem}.args" # This should match what's in the shell command
+    results_path = f"{log_stem}.args" 
 
-    # Use log_stem for the experiment, as your comment noted
     experiment_string = (
         f"CUDA_VISIBLE_DEVICES={gpu_index} python -u scripts/{script}.py {flag_string} "
         f"--results_path {log_stem} --experiment_name {job_hash}"
@@ -234,10 +165,8 @@ def run_job(job_info):
         return results_path, log_path, "skipped"
 
     try:
-        # ⬇️⬇️⬇️ MODIFIED SECTION ⬇️⬇️⬇️
         print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: Starting subprocess.")
         print(f"[GPU {gpu_index} | Job {job_hash[:6]}]: Executing command: {shell_cmd}") # <-- ADDED THIS LINE
-        # ⬆️⬆️⬆️ END OF MODIFIED SECTION ⬆️⬆️⬆️
         
         # Use Popen for non-blocking call with timeout
         process = subprocess.Popen(shell_cmd, shell=True)

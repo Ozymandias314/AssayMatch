@@ -56,9 +56,6 @@ class ProjectionMLP(nn.Module):
             nn.Linear(input_dim, hidden_dim),
             nn.BatchNorm1d(hidden_dim),
             nn.ReLU(),
-            # nn.Linear(hidden_dim, hidden_dim),
-            # nn.BatchNorm1d(hidden_dim),
-            # nn.ReLU(),
             nn.Linear(hidden_dim, output_dim)
         )
         print(f"Initialized ProjectionMLP: Input={input_dim}, Hidden={hidden_dim}, Output={output_dim}")

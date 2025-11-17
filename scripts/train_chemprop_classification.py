@@ -34,8 +34,6 @@ class CachedDataset(torch.utils.data.Dataset):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Sample argument parser for processing input.")
-    
-    # Integer field for cluster
 
     parser.add_argument('--num_runs', type=int, required=True, help='An integer field representing the cluster value.')
 
@@ -46,13 +44,8 @@ def parse_args():
     parser.add_argument('--test_file', type=str, required=True, help='Path to test file.')
 
     parser.add_argument('--data_dir', type=str, required=True, help='Path to data directory.')
-    
-    # String field for output filename
-    #parser.add_argument('--outputfilename', type=str, required=True, help='A string representing the output file name.')
 
     parser.add_argument('--outdir', type=str)
-    
-    # Boolean field for mean_replace
 
     parser.add_argument('--results_path', type=str, required=False, help='Path to save results.')
 
@@ -66,31 +59,20 @@ def parse_args():
 
     parser.add_argument('--random_seed', type = int, required = False, default = None, help = 'random seed to set')
 
-
-
-
-    
-
     return parser.parse_args()
 
 if __name__ == "__main__":
 
     args = parse_args()
 
-    
-    
-
     train_df = pd.read_csv(os.path.join(args.data_dir, args.train_file))
     val_df = pd.read_csv(os.path.join(args.data_dir, args.val_file))
     test_df = pd.read_csv(os.path.join(args.data_dir, args.test_file))
-
-
 
     for i in range(args.num_runs):
         if args.random_seed is not None:
             torch.manual_seed(args.random_seed)
             np.random.seed(args.random_seed)
-        #start_time = time.time()
         num_workers = args.num_workers
         featurizer = featurizers.SimpleMoleculeMolGraphFeaturizer()
 
@@ -103,8 +85,6 @@ if __name__ == "__main__":
         val_data = [data.MoleculeDatapoint.from_smi(smi, y) for smi, y in zip(val_df.loc[:, 'compound_smiles'].values, val_df.loc[:, ['classification_label']].values)]
         test_data = [data.MoleculeDatapoint.from_smi(smi, y) for smi, y in zip(test_df.loc[:, 'compound_smiles'].values, test_df.loc[:, ['classification_label']].values)]
 
-
-        
         use_cached_data = True
 
         if use_cached_data:
@@ -118,20 +98,13 @@ if __name__ == "__main__":
 
             original_test_dset = data.MoleculeDataset(test_data, featurizer)
 
-
             test_dset = CachedDataset(original_test_dset)
         else:
             train_dset = data.MoleculeDataset(train_data, featurizer)
 
-
             val_dset = data.MoleculeDataset(val_data, featurizer)
 
-
             test_dset = data.MoleculeDataset(test_data, featurizer)
-
-
-
-
 
         pin_memory = True
         
@@ -160,7 +133,7 @@ if __name__ == "__main__":
             enable_progress_bar=True,
             accelerator="auto",
             devices=1,
-            max_epochs=args.max_epochs, # number of epochs to train for
+            max_epochs=args.max_epochs, 
         )
 
         if trainer.local_rank == 0:
@@ -169,10 +142,9 @@ if __name__ == "__main__":
         trainer.fit(mpnn, train_loader, val_loader)
 
         end_time = time.time()
-        #print(f"Training time: {end_time - start_time}")
+
     
         results = trainer.test(mpnn, test_loader)
-    
     
         with torch.inference_mode():
             trainer = pl.Trainer(

@@ -1,6 +1,5 @@
-
 import sys
-sys.path.append("/data/rbg/users/vincentf/data_uncertainty_take_2/smiles-transformer/smiles_transformer")
+sys.path.append("../smiles-transformer/smiles_transformer")
 from build_vocab import WordVocab
 from pretrain_trfm import TrfmSeq2seq
 from utils import split
@@ -24,7 +23,7 @@ from transformer_mlp import TorchMLPClassifier
 
 import pickle
 
-VOCAB = WordVocab.load_vocab('/data/rbg/users/vincentf/data_uncertainty_take_2/smiles-transformer/experiments/vocab.pkl')
+VOCAB = WordVocab.load_vocab('../smiles-transformer/smiles_transformer/vocab.pkl')
 
 PAD_INDEX = 0
 UNK_INDEX = 1
@@ -56,8 +55,6 @@ def get_array(smiles):
 def parse_args():
     parser = argparse.ArgumentParser(description="Sample argument parser for processing input.")
     
-    # Integer field for cluster
-
     parser.add_argument('--num_runs', type=int, required=True, help='An integer field representing the cluster value.')
 
     parser.add_argument('--train_file', type=str, required=True, help='Path to train file.')
@@ -66,13 +63,8 @@ def parse_args():
 
     parser.add_argument('--data_dir', type=str, required=True, help='Path to data directory.')
     
-    # String field for output filename
-    #parser.add_argument('--outputfilename', type=str, required=True, help='A string representing the output file name.')
-
     parser.add_argument('--outdir', type=str)
     
-    # Boolean field for mean_replace
-
     parser.add_argument('--results_path', type=str, required=False, help='Path to save results.')
 
     parser.add_argument('--experiment_name', type=str, required=False, help='Name of experiment.')
@@ -82,9 +74,6 @@ def parse_args():
 if __name__ == "__main__":
 
     args = parse_args()
-
-    
-    
 
     train_df = pd.read_csv(os.path.join(args.data_dir, args.train_file))
     test_df = pd.read_csv(os.path.join(args.data_dir, args.test_file))
@@ -100,10 +89,9 @@ if __name__ == "__main__":
         test_x_split = [split(sm) for sm in test_df['compound_smiles'].values]
         test_xid, test_xseg = get_array(test_x_split)
 
-        # NEW: Create model with encoder
         clf = TorchMLPClassifier(
             encoder=trfm,
-            hidden_layer_sizes=100,  # or [100, 50] for multiple layers
+            hidden_layer_sizes=100,  
             max_iter=1000,
             verbose=True,
             batch_size=200,
@@ -111,10 +99,7 @@ if __name__ == "__main__":
             encoder_on_cpu=False
         )
 
-        # Fit with tokenized SMILES (not pre-encoded!)
         clf.fit(train_xid, train_df['classification_label'])
-
-        # Predict
         y_score = clf.predict_proba(test_xid)[:, 1]
 
         test_df['classification_preds'] = y_score
