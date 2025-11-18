@@ -4,7 +4,6 @@ import time
 import pandas as pd
 import numpy as np
 from lightning import pytorch as pl
-from lightning.pytorch.callbacks import ModelCheckpoint
 from chemprop import data, featurizers, models, nn
 import argparse
 import os

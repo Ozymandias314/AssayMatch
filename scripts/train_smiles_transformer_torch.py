@@ -3,25 +3,13 @@ sys.path.append("../smiles-transformer/smiles_transformer")
 from build_vocab import WordVocab
 from pretrain_trfm import TrfmSeq2seq
 from utils import split
-from sklearn.neural_network import MLPRegressor, MLPClassifier
-import torch.multiprocessing as mp
-import asyncio
 import torch
-import time
-import json
 import pandas as pd
-from rdkit import Chem
 import torch
-import torch.nn as nn
-import numpy as np
-from sklearn.metrics import f1_score, matthews_corrcoef, roc_auc_score, precision_recall_curve, auc, mean_squared_error, mean_absolute_error, r2_score
-from collections import defaultdict
 import argparse
 import os
 
 from transformer_mlp import TorchMLPClassifier
-
-import pickle
 
 VOCAB = WordVocab.load_vocab('../smiles-transformer/smiles_transformer/vocab.pkl')
 

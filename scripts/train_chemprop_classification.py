@@ -1,17 +1,13 @@
 import torch.multiprocessing as mp
-import asyncio
 import torch
 import time
 import json
 import pandas as pd
-from rdkit import Chem
 import torch
 import numpy as np
 import wandb
-from pytorch_lightning.loggers import WandbLogger
 from lightning import pytorch as pl
 from chemprop import data, featurizers, models, nn
-from sklearn.metrics import f1_score, matthews_corrcoef, roc_auc_score, precision_recall_curve, auc, mean_squared_error, mean_absolute_error, r2_score
 from collections import defaultdict
 import argparse
 import os

@@ -1,29 +1,19 @@
 import sys
-sys.path.append("../smiles-transformer/smiles_transformer")
+sys.path.append("smiles-transformer/smiles_transformer")
 from build_vocab import WordVocab
 from pretrain_trfm import TrfmSeq2seq
 from utils import split
-from sklearn.neural_network import MLPRegressor, MLPClassifier
 import torch.multiprocessing as mp
-import asyncio
 import torch
-import time
-import json
 import pandas as pd
-from rdkit import Chem
 import torch
-import torch.nn as nn
 import numpy as np
-from sklearn.metrics import f1_score, matthews_corrcoef, roc_auc_score, precision_recall_curve, auc, mean_squared_error, mean_absolute_error, r2_score
-from collections import defaultdict
 import argparse
 import os
 
 from transformer_mlp import TorchMLPClassifier
 
-import pickle
-
-VOCAB = WordVocab.load_vocab('../smiles-transformer/smiles_transformer/vocab.pkl')
+VOCAB = WordVocab.load_vocab('smiles-transformer/smiles_transformer/vocab.pkl')
 
 PAD_INDEX = 0
 UNK_INDEX = 1
@@ -98,7 +88,7 @@ if __name__ == "__main__":
     train_df = total_train_df[binary_vector.astype(bool)]
 
     trfm = TrfmSeq2seq(len(VOCAB), 256, len(VOCAB), 4)
-    trfm.load_state_dict(torch.load('../smiles-transformer/trfm_12_23000.pkl', map_location = torch.device('cuda')))
+    trfm.load_state_dict(torch.load('smiles-transformer/trfm_12_23000.pkl', map_location = torch.device('cuda')))
     trfm.to('cuda')
     trfm.eval()
 
