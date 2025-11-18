@@ -1,12 +1,7 @@
 import json
-import numpy as np
 import random 
 import os
-from collections import defaultdict
 import argparse
-from tqdm import tqdm
-import itertools
-import shutil
 import pandas as pd
 
 parser = argparse.ArgumentParser(description="Generate Data")
@@ -25,15 +20,17 @@ if __name__ == "__main__":
 
     BASE_PATH = args.base_path
 
+    os.makedirs(BASE_PATH, exist_ok=True)
+
     maximum_index = max([int(name.split('_')[-1]) for name in os.listdir(BASE_PATH) if name.startswith('run_')], default=0)
 
     os.makedirs(os.path.join(BASE_PATH, f'run_{maximum_index + 1}'), exist_ok=True)
 
-    with open('/data/rbg/users/vincentf/data_uncertainty_take_2/data/finetuning_data/chembl_id_to_idx_list.json', 'r') as f:
+    with open('data/chembl_id_to_idx_list.json', 'r') as f:
         chembl_id_to_idx_list = json.load(f)
-    with open('/data/rbg/users/vincentf/data_uncertainty_take_2/data/finetuning_data/idx_to_description.json', 'r') as f:
+    with open('data/idx_to_description.json', 'r') as f:
         idx_to_description = json.load(f)
-    with open('/data/rbg/users/vincentf/data_uncertainty_take_2/data/finetuning_data/description_to_idx.json', 'r') as f:
+    with open('data/description_to_idx.json', 'r') as f:
         description_to_idx = json.load(f)
 
     CHEMBL_ID_LIST = ['CHEMBL340', 'CHEMBL240', 'CHEMBL247','CHEMBL220', 'CHEMBL279', 'CHEMBL203'] 
@@ -43,7 +40,7 @@ if __name__ == "__main__":
         os.mkdir(os.path.join(BASE_PATH, f'run_{maximum_index + 1}', chembl_id, 'chemprop'))
         os.mkdir(os.path.join(BASE_PATH, f'run_{maximum_index + 1}', chembl_id, 'st'))
 
-        df = pd.read_csv(f'/data/rbg/users/vincentf/data_uncertainty_take_2/data/finalized_data/{chembl_id}_total.csv')
+        df = pd.read_csv(f'data/{chembl_id}_total.csv')
 
         train_description_idxs = random.sample(chembl_id_to_idx_list[chembl_id], int(0.9*len(chembl_id_to_idx_list[chembl_id])))
 
@@ -59,7 +56,7 @@ if __name__ == "__main__":
 
 
     config = {
-        "script": "train_chemprop_for_datamodels_classification",
+        "script": "train_chemprop_for_trak_classification",
         "cartesian_hyperparams": {
             "max_epochs": [
                 20
@@ -74,7 +71,7 @@ if __name__ == "__main__":
                 "train.csv"
             ],
             "binary_vector_dir": [
-                "/data/rbg/users/vincentf/data_uncertainty_take_2/data/random_vectors"
+                "data/random_vectors"
             ],
             "index": [
                 0,
@@ -241,7 +238,7 @@ if __name__ == "__main__":
                 "train.csv"
             ],
             "binary_vector_dir": [
-                "/data/rbg/users/vincentf/data_uncertainty_take_2/data/random_vectors"
+                "data/random_vectors"
             ],
             "index": [
                 0,

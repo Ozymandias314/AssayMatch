@@ -4,11 +4,10 @@ import argparse
 import numpy as np
 import json
 import pandas as pd
-import heapq
 from tqdm import tqdm
 import random
 
-scripts_path = os.path.abspath(os.path.join(os.getcwd(), "..", "scripts"))
+scripts_path = os.path.abspath(os.path.join(os.getcwd(), "scripts"))
 sys.path.append(scripts_path)
 
 from finetune_embeddings_predefined import TripletFineTuner
@@ -25,7 +24,7 @@ def project_embeddings(ckpt_path: str, emb_array: np.ndarray) -> np.ndarray:
     model = TripletFineTuner.load_from_checkpoint(
         ckpt_path,
         map_location=cpu,
-        embedding_file="../data/finetuning_data/description_embeddings.npy",
+        embedding_file="data/description_embeddings.npy",
         projection_dim=768
     )
     # 2) ensure model is on CPU
@@ -189,11 +188,8 @@ def generate_data(chembl_id, chembl_id_to_idx_list, idx_to_description, descript
     unique_test_descriptions = set(test_df['assay_description'].values)
     unique_train_descriptions = set(train_df['assay_description'].values)
 
-    #train_sizes = [100*(i+1) for i in range(min(len(train_df)//100, 10))] 
 
     train_sizes = [(int(len(train_df) * i/10), i*10) for i in range(1, 10, 1)]
-
-    #train_sizes = [500, 501, 502, 503, 1000, 1001, 1002, 1003, 2000, 2001, 2002, 2003, 2500, 2501, 2502, 2503]
 
     assay_similarities = {}
 
@@ -270,7 +266,7 @@ def generate_data(chembl_id, chembl_id_to_idx_list, idx_to_description, descript
             try:
                 # Save similarity-based training sets
                 embedding_train_df.to_csv(f'{base_save_path_prefix}/embedding_train_{size}_{i}.csv', index=False)
-                projected_train_df.to_csv(f'{base_save_path_prefix}/originalprojected_train_{size}_{i}.csv', index=False)
+                projected_train_df.to_csv(f'{base_save_path_prefix}/assaymatch_train_{size}_{i}.csv', index=False)
 
                 
                 # Save the common test set for this group
@@ -278,16 +274,16 @@ def generate_data(chembl_id, chembl_id_to_idx_list, idx_to_description, descript
 
                 # Update config dictionary
 
-                to_extend = [f'embedding_train_{size}_{i}.csv', f'originalprojected_train_{size}_{i}.csv']
+                to_extend = [f'embedding_train_{size}_{i}.csv', f'assaymatch_train_{size}_{i}.csv']
 
 
                 config_dict['paired_hyperparams']['train_file'].extend(to_extend)
                 config_dict['paired_hyperparams']['test_file'].extend([f'test_{size}_{i}.csv'] * len(to_extend))
 
-                if size == 90:
-                    baos = {bao_dict[assay_id] for assay_id in test_df_sample['assay_id'] if assay_id in bao_dict}
+                if size == 10:
+                    baos = {bao_dict[str(assay_id)] for assay_id in test_df_sample['assay_id'] if str(assay_id) in bao_dict}
 
-                    bao_train_subdf = train_df[train_df['assay_id'].apply(lambda x: bao_dict.get(x) in baos if x in bao_dict else False)]
+                    bao_train_subdf = train_df[train_df['assay_id'].apply(lambda x: bao_dict.get(str(x)) in baos if str(x) in bao_dict else False)]
 
                     bao_train_subdf.to_csv(f'{base_save_path_prefix}/bao_train_{size}_{i}.csv', index=False)
                     config_dict['paired_hyperparams']['train_file'].append(f'bao_train_{size}_{i}.csv')
@@ -321,14 +317,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
     chembl_ids = CHEMBL_ID_LIST
 
-    with open('../data/finetuning_data/chembl_id_to_idx_list.json', 'r') as f:
+    with open('data/chembl_id_to_idx_list.json', 'r') as f:
         chembl_id_to_idx_list = json.load(f)
-    with open('../data/finetuning_data/idx_to_description.json', 'r') as f:
+    with open('data/idx_to_description.json', 'r') as f:
         idx_to_description = json.load(f)
-    with open('../data/finetuning_data/description_to_idx.json', 'r') as f:
+    with open('data/description_to_idx.json', 'r') as f:
         description_to_idx = json.load(f)
     
-    with open('/data/rbg/users/vincentf/data_uncertainty_take_2/final_benchmark/chembl_id_to_ic50_assay_bao_dicts.json', 'r') as f:
+    with open('data/chembl_id_to_ic50_assay_bao_dicts.json', 'r') as f:
         chembl_id_to_ic50_assay_bao_dicts = json.load(f)
 
     # train_pairs_positive = np.load(f'{args.base_path}/assay_split_positive_pairs_train.npy').flatten()
@@ -337,7 +333,7 @@ if __name__ == "__main__":
     # with open(f'{args.base_path}/train_indices.json', 'r') as f:
     #     train_indices = json.load(f)
 
-    description_embeddings = np.load('/data/rbg/users/vincentf/data_uncertainty_take_2/data/finetuning_data/description_embeddings.npy')
+    description_embeddings = np.load('data/description_embeddings.npy')
 
 
     #find only 

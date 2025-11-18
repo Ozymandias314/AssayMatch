@@ -2,7 +2,6 @@ import json
 import numpy as np
 import random 
 import os
-from collections import defaultdict
 import argparse
 from tqdm import tqdm
 import itertools
@@ -104,20 +103,6 @@ def compute_true_ranking_per_group(
     print(f"Total group computation complete in {time.time() - start_time:.2f}s.")
     return true_ranking_dict
 
-# --- Main Processing Loop (Modified) ---
-
-# Load global metadata (ensure variable names match your files)
-with open('../data/finetuning_data/chembl_id_to_idx_list.json', 'r') as f:
-    chembl_id_to_idx_list = json.load(f)
-with open('../data/finetuning_data/idx_to_description.json', 'r') as f:
-    # Keys from JSON are strings, which is handled in the function.
-    idx_to_description = json.load(f)
-with open('../data/finetuning_data/description_to_idx.json', 'r') as f:
-    # Keys from JSON are strings, which is handled in the function.
-    description_to_idx = json.load(f)
-# This dictionary will collect results from all groups.
-final_true_ranking_dict = {}
-
 parser = argparse.ArgumentParser(description="Generate Data")
 parser.add_argument(
     "--base_path",
@@ -169,17 +154,20 @@ def sample_train_test_triplets(idx_to_ranking, chembl_id_to_idx_list, top_6_list
     return train_triplets, test_triplets, train_indices
 
 if __name__ == "__main__":
+
     args = parser.parse_args()
 
-    with open('/data/rbg/users/vincentf/data_uncertainty_take_2/final_benchmark/true_rankings_no_top_6.json') as f:
+    with open('data/chembl_id_to_idx_list.json', 'r') as f:
+        chembl_id_to_idx_list = json.load(f)
+    with open('data/idx_to_description.json', 'r') as f:
+        idx_to_description = json.load(f)
+    with open('data/description_to_idx.json', 'r') as f:
+        description_to_idx = json.load(f)
+
+
+    with open('data/true_rankings_no_top_6.json') as f:
         true_rankings = json.load(f)
     true_rankings = {int(k): v for k, v in true_rankings.items()}
-    with open('../data/finetuning_data/chembl_id_to_idx_list.json', 'r') as f:
-        chembl_id_to_idx_list = json.load(f)
-    with open('../data/finetuning_data/idx_to_description.json', 'r') as f:
-        idx_to_description = json.load(f)
-    with open('../data/finetuning_data/description_to_idx.json', 'r') as f:
-        description_to_idx = json.load(f)
 
     #extend true_rankings here
     BASE_PATH = args.base_path
@@ -187,7 +175,7 @@ if __name__ == "__main__":
         global_indices = chembl_id_to_idx_list[chembl_id]
 
         df = pd.read_csv(os.path.join(BASE_PATH, chembl_id, 'train.csv'))
-        trak_scores = np.load(os.path.join(BASE_PATH, chembl_id, 'chemprop', 'train.csv_100_checkpoints_512_proj_dim.npy'))
+        trak_scores = np.load(os.path.join(BASE_PATH, chembl_id, 'chemprop', 'train.csv_1_checkpoints_512_proj_dim.npy'))
 
         df = df.reset_index(drop = True)
         ranking_for_group = compute_true_ranking_per_group(
@@ -206,11 +194,6 @@ if __name__ == "__main__":
     train_triplets = np.array(train_triplets)
     test_triplets = np.array(test_triplets)
 
-
-
-
-
-
     np.save(os.path.join(BASE_PATH, 'train_triplets_chemprop.npy'), train_triplets)
     np.save(os.path.join(BASE_PATH, 'val_triplets_chemprop.npy'), test_triplets)
     with open(os.path.join(BASE_PATH, 'train_indices_chemprop.json'), 'w') as f:
@@ -221,7 +204,7 @@ if __name__ == "__main__":
         "script": "finetune_embeddings_predefined",
         "cartesian_hyperparams": {
             "embedding_file": [
-                "data/finetuning_data/description_embeddings.npy"
+                "data/description_embeddings.npy"
             ],
             "train_triplets_file": [
                 os.path.join(BASE_PATH,  'train_triplets_chemprop.npy')
@@ -252,30 +235,23 @@ if __name__ == "__main__":
             ]
         },
         "available_gpus": [
-            "3"
+            "0"
         ]
     }
 
     with open(os.path.join(BASE_PATH, 'finetune_config_chemprop.json'), 'w') as f:
         json.dump(config, f, indent=4)
     
-    with open('/data/rbg/users/vincentf/data_uncertainty_take_2/final_benchmark/true_rankings_no_top_6_st.json') as f:
+    with open('data/true_rankings_no_top_6_st.json') as f:
         true_rankings = json.load(f)
     true_rankings = {int(k): v for k, v in true_rankings.items()}
-    with open('../data/finetuning_data/chembl_id_to_idx_list.json', 'r') as f:
-        chembl_id_to_idx_list = json.load(f)
-    with open('../data/finetuning_data/idx_to_description.json', 'r') as f:
-        idx_to_description = json.load(f)
-    with open('../data/finetuning_data/description_to_idx.json', 'r') as f:
-        description_to_idx = json.load(f)
 
-    #extend true_rankings here
     BASE_PATH = args.base_path
     for chembl_id in CHEMBL_ID_LIST:
         global_indices = chembl_id_to_idx_list[chembl_id]
 
         df = pd.read_csv(os.path.join(BASE_PATH, chembl_id, 'train.csv'))
-        trak_scores = np.load(os.path.join(BASE_PATH, chembl_id, 'st', 'train.csv_100_checkpoints_512_proj_dim.npy'))
+        trak_scores = np.load(os.path.join(BASE_PATH, chembl_id, 'st', 'train.csv_1_checkpoints_512_proj_dim.npy'))
 
         df = df.reset_index(drop = True)
         ranking_for_group = compute_true_ranking_per_group(
@@ -295,10 +271,6 @@ if __name__ == "__main__":
     test_triplets = np.array(test_triplets)
 
 
-
-
-
-
     np.save(os.path.join(BASE_PATH, 'train_triplets_st.npy'), train_triplets)
     np.save(os.path.join(BASE_PATH, 'val_triplets_st.npy'), test_triplets)
     with open(os.path.join(BASE_PATH, 'train_indices_st.json'), 'w') as f:
@@ -309,7 +281,7 @@ if __name__ == "__main__":
         "script": "finetune_embeddings_predefined",
         "cartesian_hyperparams": {
             "embedding_file": [
-                "data/finetuning_data/description_embeddings.npy"
+                "data/description_embeddings.npy"
             ],
             "train_triplets_file": [
                 os.path.join(BASE_PATH,  'train_triplets_st.npy')
@@ -340,7 +312,7 @@ if __name__ == "__main__":
             ]
         },
         "available_gpus": [
-            "3"
+            "0"
         ]
     }
 
