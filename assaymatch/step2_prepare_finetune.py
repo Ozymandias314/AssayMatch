@@ -175,7 +175,7 @@ if __name__ == "__main__":
         global_indices = chembl_id_to_idx_list[chembl_id]
 
         df = pd.read_csv(os.path.join(BASE_PATH, chembl_id, 'train.csv'))
-        trak_scores = np.load(os.path.join(BASE_PATH, chembl_id, 'chemprop', 'train.csv_1_checkpoints_512_proj_dim.npy'))
+        trak_scores = np.load(os.path.join(BASE_PATH, chembl_id, 'chemprop', 'train.csv_100_checkpoints_512_proj_dim.npy'))
 
         df = df.reset_index(drop = True)
         ranking_for_group = compute_true_ranking_per_group(
@@ -251,7 +251,7 @@ if __name__ == "__main__":
         global_indices = chembl_id_to_idx_list[chembl_id]
 
         df = pd.read_csv(os.path.join(BASE_PATH, chembl_id, 'train.csv'))
-        trak_scores = np.load(os.path.join(BASE_PATH, chembl_id, 'st', 'train.csv_1_checkpoints_512_proj_dim.npy'))
+        trak_scores = np.load(os.path.join(BASE_PATH, chembl_id, 'st', 'train.csv_100_checkpoints_512_proj_dim.npy'))
 
         df = df.reset_index(drop = True)
         ranking_for_group = compute_true_ranking_per_group(
