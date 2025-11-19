@@ -5,6 +5,7 @@ To install
 ```
 #create a new environment
 conda create -n AssayMatch python=3.11
+conda activate AssayMatch
 python -m pip install -r requirements.txt
 ```
 
