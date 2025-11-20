@@ -27,5 +27,10 @@ AssayMatch/
 └── benchmark.sh #run this to do a new benchmarking trial
 ```
 
+## Replication Instructions
+
+To replicate our expeirmental results, we make our benchmarking datasets and intermediate finetuning checkpoints + TRAK scores avaailble at [zenodo](https://doi.org/10.5281/zenodo.17656531). 
+
+To compute rankings for all ChEMBL IC50 data, use `scripts/make_dataset.py` and run TRAK for the appropriate model. Save the dataset for each chembl_id to `data/{chembl_id}/total.csv` and the TRAK scores to the same directory. Then use `scripts/get_true_rankings.py` to get the assays ranked by Per Assay TRAK score for embedding finetuning.  
 
 This project includes code adapted from SmilesTransformer (Shion Honda, 2019), used under the MIT License.

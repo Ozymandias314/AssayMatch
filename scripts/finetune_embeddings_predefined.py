@@ -311,7 +311,7 @@ if __name__ == '__main__':
     # --- Setup Callbacks & Logger ---
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.output_dir,
-        filename='originalbest-model-{epoch}-{val_accuracy_epoch:.4f}' + args.model_type,
+        filename='best-model-{epoch}-{val_accuracy_epoch:.4f}' + args.model_type,
         save_top_k=1,
         verbose=True,
         monitor='val_accuracy_epoch',

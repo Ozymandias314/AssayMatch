@@ -303,7 +303,7 @@ def generate_data(chembl_id, chembl_id_to_idx_list, idx_to_description, descript
 
 
     config_dict['paired_hyperparams']['train_file'].append(f'train.csv')
-    config_dict['paired_hyperparams']['test_file'].append(f'test.csv')
+    config_dict['paired_hyperparams']['test_file'].append(f'random_test_90.csv')
 
     
     
