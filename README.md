@@ -1,7 +1,8 @@
 # AssayMatch
-This repository contains code for AssayMatch: Language Guided Data Selection for Molecular Activity with Data Attribution.
+This repository contains code for AssayMatch: Learning to Select Data for Molecular Activity Models
+<img src="AssayMatch_toc_graphic.png" width="300">
 
-To install 
+## Installation
 ```
 #create a new environment
 conda create -n AssayMatch python=3.11
